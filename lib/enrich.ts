@@ -8,7 +8,7 @@ export async function enrich(usernames: string[]) {
     maxTweets: 10,
   });
 
-  console.log("enrich: Actor run ID:", run.id);
+  console.log("enrich: Actor run ID is:", run.id);
 
   const { items } = await apify.dataset(run.defaultDatasetId).listItems();
   console.log("enrich: Retrieved items:", items.length);
