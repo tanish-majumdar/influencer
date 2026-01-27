@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { discoverByDomain } from "@/lib/pipeline";
+import fs from "fs";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -17,6 +18,15 @@ export async function GET(req: NextRequest) {
     const discoveryResult = await discoverByDomain(domain);
 
     console.log(discoveryResult);
+
+    const dataToStore = JSON.stringify(discoveryResult, null, 2);
+
+    try {
+      fs.writeFileSync("discovery_results.json", dataToStore, "utf8");
+      console.log("✅ Results successfully saved to discovery_results.json");
+    } catch (error) {
+      console.error("❌ Failed to save file:", error);
+    }
 
     // for (const topicData of discoveryResult) {
     //   for (const influencer of topicData.influencers) {

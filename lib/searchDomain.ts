@@ -1,6 +1,6 @@
 import { generateSeed } from "./generateSeed";
 import { searchX } from "./searchX";
-import { dummySeed } from "./schema";
+import { dummySeed } from "./dummyData";
 
 export async function searchDomain(input: string) {
   // console.log("searchDomain: Starting search for input:", input);
