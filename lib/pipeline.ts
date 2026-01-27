@@ -4,12 +4,15 @@ import { searchX } from "./searchX";
 import { enrich } from "./enrich";
 
 export async function discoverByDomain(domain: string) {
-  console.log("discoverByDomain: Starting discovery for domain:", domain);
+  // console.log("discoverByDomain: Starting discovery for domain:", domain);
+  // console.log(process.env);
+  // return;
   const seedPosts = await searchDomain(domain);
   console.log(
     "discoverByDomain: Retrieved seed posts count:",
     seedPosts.length,
   );
+  return;
   const topics = await extractTopTopics(seedPosts);
   console.log("discoverByDomain: Extracted topics:", topics);
 
