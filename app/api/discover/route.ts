@@ -23,9 +23,9 @@ export async function GET(req: NextRequest) {
 
     try {
       fs.writeFileSync("discovery_results.json", dataToStore, "utf8");
-      console.log("✅ Results successfully saved to discovery_results.json");
+      console.log("Results successfully saved to discovery_results.json");
     } catch (error) {
-      console.error("❌ Failed to save file:", error);
+      console.error("Failed to save file:", error);
     }
 
     // for (const topicData of discoveryResult) {
