@@ -1,0 +1,31 @@
+
+
+site:linkedin.com/in ("AI" OR "artificial intelligence") "posted"
+
+
+//console
+(() => {
+  const anchors = Array.from(document.querySelectorAll('a'));
+  
+  const linkedInUrls = anchors
+    .map(a => a.href)
+    .filter(href => href.includes("linkedin.com/in/"))
+    .map(href => href.replace(/^[a-z]{2,3}\.linkedin/, "www.linkedin"));
+
+  const userSlugs = new Set();
+  linkedInUrls.forEach(url => {
+    try {
+      const cleanUrl = new URL(url);
+      const parts = cleanUrl.pathname.split('/in/');
+      if (parts.length > 1) {
+        let slug = parts[1];
+        if (slug.endsWith('/')) slug = slug.slice(0, -1);
+        userSlugs.add(slug);
+      }
+    } catch (e) {
+    }
+  });
+  console.log(`export const linkedInProfiles = [\n  "${[...userSlugs].join('",\n  "')}"\n];`);
+})();
+
+

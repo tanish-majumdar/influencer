@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
-import { discoverByDomain } from "@/lib/pipeline";
+// import prisma from "@/lib/db";
+import { discoverByDomain } from "@/lib/twitter/pipeline";
 import fs from "fs";
 
 export async function GET(req: NextRequest) {
@@ -22,8 +22,10 @@ export async function GET(req: NextRequest) {
     const dataToStore = JSON.stringify(discoveryResult, null, 2);
 
     try {
-      fs.writeFileSync("discovery_results.json", dataToStore, "utf8");
-      console.log("Results successfully saved to discovery_results.json");
+      fs.writeFileSync("discovery_results_twitter.json", dataToStore, "utf8");
+      console.log(
+        "Results successfully saved to discovery_results_twitter.json",
+      );
     } catch (error) {
       console.error("Failed to save file:", error);
     }

@@ -4,7 +4,7 @@ import { searchX } from "./searchX";
 import { enrich } from "./enrich";
 import { searchBuilder } from "./searchBuilder";
 import { dummyTopics } from "./dummyData";
-import { searchX2 } from "./searchX2";
+import { getEstablishedInfluencers } from "./topTwitterUsers";
 
 export async function discoverByDomain(domain: string) {
   // console.log("discoverByDomain: Starting discovery for domain:", domain);
@@ -14,8 +14,8 @@ export async function discoverByDomain(domain: string) {
     "discoverByDomain: Retrieved seed posts count:",
     seedPosts.length,
   );
-  // const topics = await extractTopTopics(seedPosts);
-  const topics = dummyTopics; //delete this line later
+  const topics = await extractTopTopics(seedPosts);
+  // const topics = dummyTopics; //delete this line later
   console.log("discoverByDomain: Extracted topics:", topics);
 
   const result = [];
@@ -26,6 +26,8 @@ export async function discoverByDomain(domain: string) {
     const seedX = searchBuilder(topic);
     const posts = await searchX(seedX);
 
+    const establishedUsernames = await getEstablishedInfluencers(topic);
+
     const usernames: string[] = [];
     const seen = new Set();
 
@@ -34,9 +36,12 @@ export async function discoverByDomain(domain: string) {
         seen.add(p.authorUsername);
         usernames.push(p.authorUsername);
       }
-      if (usernames.length === 5) break;
+      if (usernames.length === 20) break;
     }
-    const profiles = await enrich(usernames);
+    const combinedUsernames = [
+      ...new Set([...usernames, ...establishedUsernames]),
+    ].slice(0, 50);
+    const profiles = await enrich(combinedUsernames);
 
     const influencers = profiles.map((p) => ({
       name: p.username,
