@@ -25,8 +25,9 @@ export async function testVertexConnection() {
 
     // 3. Attempt a simple generation
     const { text } = await generateText({
-      model: vertex("gemini-1.5-flash"),
-      prompt: "Reply with the word 'Success' if you can read this.",
+      model: vertex("gemini-2.5-flash"),
+      prompt:
+        "Reply with the word 'Success' if you can read this.Also a include a funny joke.",
     });
 
     console.log("Result:", text);

@@ -1,33 +1,6 @@
 import { apify } from "../apify";
-import natural from "natural";
-import { z } from "zod";
 import { instaInputSchema } from "./schema";
-
-const classifier = new natural.BayesClassifier();
-
-classifier.addDocument(
-  "software developer coding javascript typescript saas web tech",
-  "Tech",
-);
-classifier.addDocument(
-  "ai llm machine learning gpt chatbot neural automation",
-  "AI",
-);
-classifier.addDocument(
-  "bitcoin crypto web3 ethereum blockchain nft finance",
-  "Crypto",
-);
-classifier.addDocument(
-  "politics election government policy news vote economy",
-  "Politics",
-);
-classifier.addDocument(
-  "stocks investing finance money market trading venture",
-  "Finance",
-);
-classifier.addDocument("funny lol meme joke sarcasm humor comedy", "Humor");
-
-classifier.train();
+import { classifier } from "../classifier";
 
 export async function enrich(usernames: string[]) {
   console.log("enrich: Starting library-based enrichment for:", usernames);

@@ -1,31 +1,6 @@
 import { apify } from "../apify";
-import natural from "natural";
-import { linkedinInputSchema } from "./schema";
-
-const classifier = new natural.BayesClassifier();
-classifier.addDocument(
-  "software developer coding javascript typescript saas web tech",
-  "Tech",
-);
-classifier.addDocument(
-  "ai llm machine learning gpt chatbot neural automation",
-  "AI",
-);
-classifier.addDocument(
-  "bitcoin crypto web3 ethereum blockchain nft finance",
-  "Crypto",
-);
-classifier.addDocument(
-  "politics election government policy news vote economy",
-  "Politics",
-);
-classifier.addDocument(
-  "stocks investing finance money market trading venture",
-  "Finance",
-);
-classifier.addDocument("funny lol meme joke sarcasm humor comedy", "Humor");
-
-classifier.train();
+import { linkedinInputSchema, linkedinProfileInputSchema } from "./schema";
+import { classifier } from "../classifier";
 
 export async function enrich(usernames: string[]) {
   console.log("enrich: Starting library-based enrichment for:", usernames);
@@ -33,31 +8,41 @@ export async function enrich(usernames: string[]) {
   const profileUrls = usernames.map(
     (u) => `https://www.linkedin.com/in/${u.replace("@", "")}`,
   );
-
   const runPosts = await apify.actor("supreme_coder/linkedin-post").call(
     linkedinInputSchema.parse({
       urls: profileUrls,
     }),
   );
-
-  const { items: results } = await apify
+  const { items: postResults } = await apify
     .dataset(runPosts.defaultDatasetId)
+    .listItems();
+  const runProfiles = await apify
+    .actor("harvestapi/linkedin-profile-scraper")
+    .call(
+      linkedinProfileInputSchema.parse({
+        queries: profileUrls,
+      }),
+    );
+  const { items: profileResults } = await apify
+    .dataset(runProfiles.defaultDatasetId)
     .listItems();
 
   const userMap = new Map<string, any>();
-
-  results.forEach((item: any) => {
-    const username = item.authorProfileId;
+  profileResults.forEach((profile: any) => {
+    const username = profile.publicIdentifier;
     if (!username) return;
 
-    if (!userMap.has(username)) {
-      userMap.set(username, {
-        username,
-        displayName: item.authorName,
-        bio: item.author?.occupation || "",
-        posts: [],
-      });
-    }
+    userMap.set(username, {
+      username,
+      displayName: `${profile.firstName} ${profile.lastName}`,
+      followers: profile.followerCount || 0,
+      bio: `${profile.headline || ""} ${profile.about || ""}`.trim(),
+      posts: [],
+    });
+  });
+  postResults.forEach((item: any) => {
+    const username = item.authorProfileId;
+    if (!username || !userMap.has(username)) return;
 
     const user = userMap.get(username);
     if (user.posts.length < 5) {
@@ -70,7 +55,6 @@ export async function enrich(usernames: string[]) {
       });
     }
   });
-
   const categorizedProfiles = Array.from(userMap.values()).map((user) => {
     const combinedContent = `${user.bio} ${user.posts.map((p: any) => p.text).join(" ")}`;
 

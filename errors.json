@@ -1,0 +1,48 @@
+Error during discovery process: Error [AI_APICallError]: Unable to submit request because controlled generation is not supported with Search tool. Learn more: https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/gemini
+    at async getEstablishedInfluencers (lib/linkedin/topLinkedinUsers.ts:8:18)
+    at async discoverByDomain (lib/linkedin/pipeline.ts:6:21)
+    at async GET (app/api/discover/linkedin/route.ts:17:29)
+   6 |   topic: string,
+   7 | ): Promise<string[]> {
+>  8 |   const result = await generateText({
+     |                  ^
+   9 |     model: vertex("gemini-2.5-flash"),
+  10 |     tools: { google_search: vertex.tools.googleSearch({}) as any },
+  11 |     output: Output.array({ element: z.string() }), {
+  cause: undefined,
+  url: 'https://us-central1-aiplatform.googleapis.com/v1beta1/projects/scaler-platform-dev/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent',
+  requestBodyValues: [Object],
+  statusCode: 400,
+  responseHeaders: [Object],
+  responseBody: '{\n' +
+    '  "error": {\n' +
+    '    "code": 400,\n' +
+    '    "message": "Unable to submit request because controlled generation is not supported with Search tool. Learn more: https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/gemini",\n' +
+    '    "status": "INVALID_ARGUMENT"\n' +
+    '  }\n' +
+    '}\n',
+  isRetryable: false,
+  data: [Object]
+}
+ GET /api/discover/linkedin?domain=%22AI%22 500 in 4.2s
+
+
+ Established Influencers: [
+  '/in/andrewng',         '/in/alliekempermiller',
+  '/in/rubenhassid',      '/in/cassiekozyrkov',
+  '/in/bernardmarr',      '/in/fei-fei-li',
+  '/in/andrejkarpathy',   '/in/emollick',
+  '/in/yann-lecun',       '/in/demishassabis',
+  '/in/mustafasuleyman',  '/in/jensenhuang',
+  '/in/danielaamodei',    '/in/mayhabib',
+  '/in/aravind-srinivas', '/in/sebastianraschka',
+  '/in/garymarcus',       '/in/sarah-guo-4475453b',
+  '/in/zainkahn',         '/in/pascal-bornet',
+  '/in/timcortinovis',    '/in/edwardfrankmorris',
+  '/in/mennofokkema',     '/in/linasbeliunas',
+  '/in/davediamond',      '/in/alexbanks',
+  '/in/tianyu-xu',        '/in/sandipanbhaumik',
+  '/in/stevenouri',       '/in/justinshaifer'
+]
+
+fei-fei-li does not exist

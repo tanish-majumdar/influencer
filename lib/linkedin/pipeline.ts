@@ -1,10 +1,12 @@
 import { enrich } from "./enrich";
-// import { getEstablishedInfluencers } from "./topInstaUsers";
+import { getEstablishedInfluencers } from "./topLinkedinUsers";
 import { userProfiles } from "./dummyData";
 
 export async function discoverByDomain(domain: string) {
-  //   const usernames = await getEstablishedInfluencers(domain);
-  const usernames = userProfiles;
+  const usernames = await getEstablishedInfluencers(domain);
+  console.log("Established Influencers:", usernames);
+  return;
+  // const usernames = userProfiles;
   const profiles = await enrich(usernames);
 
   const influencers = profiles.map((p) => ({
