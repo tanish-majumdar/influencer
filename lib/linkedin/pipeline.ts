@@ -5,7 +5,7 @@ import { userProfiles } from "./dummyData";
 export async function discoverByDomain(domain: string) {
   const usernames = await getEstablishedInfluencers(domain);
   console.log("Established Influencers:", usernames);
-  return;
+  // return;
   // const usernames = userProfiles;
   const profiles = await enrich(usernames);
 

@@ -29,3 +29,5 @@ site:linkedin.com/in ("AI" OR "artificial intelligence") "posted"
 })();
 
 
+
+site:linkedin.com/in ("10K followers" OR "20K followers" OR "30K followers") "AI"

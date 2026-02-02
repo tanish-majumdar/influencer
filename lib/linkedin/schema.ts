@@ -14,3 +14,11 @@ export const linkedinProfileInputSchema = z.object({
     .default("Profile details no email ($4 per 1k)"),
   queries: z.array(z.string()),
 });
+
+export const googleSearchInputSchema = z.object({
+  currentUsage: z.number().default(0),
+  isPaidSubscription: z.boolean().default(false),
+  maxResults: z.number().min(1).max(100).default(50),
+  queries: z.array(z.string()).min(1),
+  country: z.string().default("us"),
+});

@@ -1,36 +1,59 @@
-import { generateText, Output } from "ai";
-import { z } from "zod";
-import { vertex } from "../vertex";
+import { apify } from "../apify";
+import { googleSearchInputSchema } from "./schema";
+
+function extractLinkedInSlugFromUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (!u.hostname.includes("linkedin.com")) return null;
+    const m = u.pathname.match(/^\/in\/([^\/?#]+)\/?$/i);
+    return m?.[1] ? decodeURIComponent(m[1]).trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+interface GoogleSearchResult {
+  rank: number;
+  domain: string;
+  url: string;
+  title: string;
+  snippet: string;
+  favicon: string;
+  deeplink: string;
+  keyword: string;
+}
 
 export async function getEstablishedInfluencers(
   topic: string,
 ): Promise<string[]> {
-  const research = await generateText({
-    model: vertex("gemini-2.5-flash"),
-    tools: { google_search: vertex.tools.googleSearch({}) as any },
-    system: `You are an expert B2B social media researcher. Use Google Search to find current, 
-             active, and authoritative LinkedIn Top Voices and thought leaders.`,
-    prompt: `Research and find 30 highly influential LinkedIn profiles specifically in the domain of "${topic}". 
-             Requirements:
-             1. List their LinkedIn profile identifiers (the part after linkedin.com/in/).
-             2. Verify they are active in 2026 and have "Top Voice" status where applicable.
-             3. Present the results as a clear list.`,
-  });
+  console.log("Discovering established influencers for topic:", topic);
+  const query = `site:linkedin.com/in ("10K followers" OR "20K followers" OR "30K followers") "${topic}"`;
 
-  const structuredResult = await generateText({
-    model: vertex("gemini-2.5-flash"),
-    output: Output.array({ element: z.string() }),
-    system: `You are a data formatter. Extract LinkedIn identifiers from the provided text 
-             and return them as a clean JSON array of strings. Remove any URLs, '@' symbols, 
-             or extra text.`,
-    prompt: research.text,
-  });
+  const run = await apify
+    .actor("s-r/free-google-search-results-serp---only-0-25-per-1-000-results")
+    .call(
+      googleSearchInputSchema.parse({
+        queries: [query],
+        maxResults: 50,
+        country: "us",
+      }),
+    );
 
-  const queries = (research.providerMetadata?.google?.groundingMetadata as any)
-    ?.webSearchQueries;
-  if (queries) {
-    console.log(`Verified LinkedIn profiles using: ${queries.join(", ")}`);
+  const { items } = await apify.dataset(run.defaultDatasetId).listItems();
+
+  console.log("Google Search results count:", items.length);
+
+  const usernames: string[] = [];
+  const seen = new Set<string>();
+
+  for (const item of items as unknown as GoogleSearchResult[]) {
+    const slug = extractLinkedInSlugFromUrl(item.url);
+    if (slug && !seen.has(slug.toLowerCase())) {
+      seen.add(slug.toLowerCase());
+      usernames.push(slug);
+    }
   }
 
-  return structuredResult.output;
+  console.log("Extracted usernames:", usernames);
+  return usernames;
 }
